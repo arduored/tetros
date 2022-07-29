@@ -1,7 +1,12 @@
 import type { NextPage } from "next";
+import Grid from "../components/Grid";
 
 const Home: NextPage = () => {
-  return <p>COUCOU</p>;
+  return (
+    <div className="flex justify-center bg-slate-700 w-full h-screen">
+      <Grid />
+    </div>
+  );
 };
 
 export default Home;
