@@ -1,36 +1,36 @@
-import { useEffect } from "react";
 import { useGrid } from "../hooks/useGrid";
+import Button from "./shared/Button";
 import Cell from "./Cell";
 
 const GRID_W = 12;
 const GRID_H = 20;
 
 function Grid() {
-  const [gridMap, setGridMap, clearGrid] = useGrid(GRID_W, GRID_H);
+  const [gridMap, updateGridMap, clearGrid] = useGrid(GRID_W, GRID_H);
 
   const square = () => {
-    setGridMap([
-      [2, 2],
-      [2, 3],
-      [3, 2],
-      [3, 3],
+    updateGridMap([
+      [6, 5],
+      [6, 6],
+      [7, 5],
+      [7, 6],
+    ]);
+  };
+
+  const leftL = () => {
+    updateGridMap([
+      [5, 2],
+      [6, 2],
+      [6, 3],
+      [6, 4],
     ]);
   };
 
   return (
     <>
-      <button
-        className="border-2 border-slate-900 w-fit h-fit m-3"
-        onClick={square}
-      >
-        fill
-      </button>
-      <button
-        className="border-2 border-slate-900 w-fit h-fit m-3"
-        onClick={() => clearGrid()}
-      >
-        clear
-      </button>
+      <Button onClick={square} text="Draw square" />
+      <Button onClick={leftL} text="Draw L" />
+      <Button onClick={() => clearGrid()} text="clear" />
 
       <div
         className={`grid grid-cols-12 bg-slate-400 border-2 border-red-500 h-fit`}

@@ -11,11 +11,9 @@ export function useGrid(
   const updateLayout = (coordinates: Coordinates[]) => {
     const newGrid = [...grid];
 
-    for (const tuple of coordinates) {
-      newGrid[tuple[1]][tuple[0]] = true;
-      console.log(newGrid);
+    for (const [x, y] of coordinates) {
+      newGrid[x][y] = true;
     }
-
     setGrid(newGrid);
   };
 
