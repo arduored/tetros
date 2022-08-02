@@ -1,25 +1,19 @@
 import classNames from "classnames";
-import { useEffect, useState } from "react";
 
-interface CellProps {
-  status: boolean;
-  coord: string;
+export interface CellProps {
+  isUsed?: boolean;
+  usedColor?: string;
 }
 
-function Cell({ status, coord }: CellProps) {
-  const [used, setUsed] = useState(status);
-
-  useEffect(() => {
-    setUsed(status);
-  }, [status]);
-
-  return <div className={cellClasses(used, "bg-yellow-700")}>{coord}</div>;
+function Cell({ isUsed=false, usedColor = "bg-yellow-700" }: CellProps) {
+  return <div className={cellClasses(isUsed, usedColor)}></div>;
 }
 
 export default Cell;
 
 function cellClasses(used: boolean, color: string) {
-  return classNames("w-[50px] h-[50px] border border-slate-700 text-center", {
+  return classNames("w-[2.5em] h-[2.5em] border border-slate-700 text-center", {
     [color]: used,
+    "bg-slate-500": !used
   });
 }

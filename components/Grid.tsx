@@ -1,47 +1,35 @@
-import { useGrid } from "../hooks/useGrid";
-import Button from "./shared/Button";
-import Cell from "./Cell";
+import { useEffect, useMemo, useState } from "react";
+import Cell, { CellProps } from "./Cell";
 
-const GRID_W = 12;
-const GRID_H = 20;
+interface IGrid {
+  width: number,
+  height: number
+  currentItem: number[][]
+}
 
-function Grid() {
-  const [gridMap, updateGridMap, clearGrid] = useGrid(GRID_W, GRID_H);
+function initGrid(w: number, h: number): JSX.Element[][] {
+  const layout: unknown[][]= Array(h).fill(Array(w).fill(undefined))
+  return layout.map((col, i) => col.map((_, j) => <Cell key={`${i}-${j}`} isUsed={false}/>))
+}
 
-  const square = () => {
-    updateGridMap([
-      [6, 5],
-      [6, 6],
-      [7, 5],
-      [7, 6],
-    ]);
-  };
+function Grid({width, height, currentItem}: IGrid) {
+  const emptyGrid = useMemo(() => initGrid(width, height), [width, height])
+  const [grid, updateGrid] = useState(emptyGrid)
 
-  const leftL = () => {
-    updateGridMap([
-      [5, 2],
-      [6, 2],
-      [6, 3],
-      [6, 4],
-    ]);
-  };
+  useEffect(() => {
+    const newGrid = [...emptyGrid]
+    
+    for(const [x, y] of currentItem) {
+      newGrid[y][x] = <Cell key={`${y}-${x}`} isUsed={true}/>
+    }
+  
+    updateGrid(newGrid)
+  }, [currentItem])
 
   return (
-    <>
-      <Button onClick={square} text="Draw square" />
-      <Button onClick={leftL} text="Draw L" />
-      <Button onClick={() => clearGrid()} text="clear" />
-
-      <div
-        className={`grid grid-cols-12 bg-slate-400 border-2 border-red-500 h-fit`}
-      >
-        {gridMap.map((row, i) =>
-          row.map((cell, j) => {
-            return <Cell key={`${i}-${j}`} status={cell} coord={`${i}-${j}`} />;
-          })
-        )}
-      </div>
-    </>
+    <div className="grid grid-cols-12 border border-orange-700">
+      {grid.map((col) => col.map((cell) => cell))}
+    </div>
   );
 }
 
