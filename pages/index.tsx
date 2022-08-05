@@ -23,27 +23,39 @@ const leftL: Tetromino = [
 ];
 
 const Home: NextPage = () => {
-  const pageRef = useRef(null);
+  const pageRef = useRef<HTMLDivElement | null>(null);
   const [playingTime, setPlayingTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [item, setItem] = useState<Tetromino | undefined>();
-  const direction = useKeyboard(pageRef);
+  const [direction, resetDirection] = useKeyboard(pageRef);
+
+  pageRef.current?.addEventListener("GRID_BOTTOM", (e) => {
+    e.preventDefault();
+    setItem(undefined);
+  });
+
+  pageRef.current?.addEventListener("GRID_SIDE", (e) => {
+    e.preventDefault();
+    console.log("GRID_SIDE");
+  });
 
   useEffect(() => {
     let ticker: NodeJS.Timer | null = null;
-    if (isPlaying) {
+    if (item && isPlaying) {
       ticker = setInterval(() => {
-        updateItem();
+        updateItem(direction);
+        // resetDirection();
         setPlayingTime(playingTime + 1);
       }, 1000);
     }
 
     return () => {
+      resetDirection();
       if (ticker) {
         clearInterval(ticker);
       }
     };
-  }, [isPlaying, playingTime]);
+  }, [item, isPlaying, playingTime]);
 
   const startGame = () => {
     console.log("Started");
@@ -53,40 +65,40 @@ const Home: NextPage = () => {
     setIsPlaying(true);
   };
 
-  const updateItem = () => {
-    if (item && isPlaying) {
-      const [pX, pY] = direction;
-      const newItem = item.map(([x, y]) => {
-        let newX = x;
-        let newY = y;
-        const tmpX = x + pX;
-        const tmpY = y + 1 + pY;
+  const updateItem = (dir: number[]) => {
+    const [pX, pY] = dir;
+    const newItem = item?.map(([x, y]) => {
+      let newX = x;
+      let newY = y;
+      const tmpX = x + pX;
+      const tmpY = y + 1 + pY;
 
-        if (tmpX >= 0 && tmpX < GRID_W) {
-          newX = tmpX;
-        }
+      if (tmpX >= 0 && tmpX < GRID_W) {
+        newX = tmpX;
+      }
 
-        if (tmpY < GRID_H) {
-          newY = tmpY;
-        }
+      if (tmpY < GRID_H) {
+        newY = tmpY;
+      }
 
-        return [newX, newY];
-      });
-      setItem(newItem);
-    }
+      return [newX, newY];
+    });
+    setItem(newItem);
   };
 
   const stopGame = () => {
     console.log("Stopped");
     setItem(undefined);
     setIsPlaying(false);
+    setPlayingTime(0);
   };
 
   return (
     <div className="flex flex-col justify-center w-full py-5" ref={pageRef}>
       <div className=" flex justify-center mb-5">
         <Button onClick={startGame} text="play" />
-        <Button onClick={stopGame} text="pause" />
+        <Button onClick={stopGame} text="stop" />
+        <p>Time played: {playingTime}sec</p>
       </div>
       <div className="flex justify-center">
         <Grid width={GRID_W} height={GRID_H} tetromino={item} />

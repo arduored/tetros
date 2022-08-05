@@ -1,27 +1,28 @@
 import { MutableRefObject, useState } from "react";
 
-export function useKeyboard(elmt: MutableRefObject<HTMLElement | null>) {
+export function useKeyboard(elmt: MutableRefObject<HTMLElement | null>): [number[], () => void] {
   const [direction, setDirection] = useState([0, 0]);
 
-  elmt.current?.addEventListener("keydown", (ev) => {
-    switch (ev.key) {
-      case "q":
-      case "ArrowLeft":
-        setDirection([-1, 0]);
-        resetDirection();
-        break;
-      case "d":
-      case "ArrowRight":
-        setDirection([1, 0]);
-        resetDirection();
-        break;
-      default:
-        setDirection([0, 0]);
-        break;
+  elmt.current?.addEventListener("keyup", (ev) => {
+    ev.preventDefault();
+    if (direction[0] === 0 && direction[1] === 0) {
+      switch (ev.key) {
+        case "q":
+        case "ArrowLeft":
+          setDirection([-1, 0]);
+          break;
+        case "d":
+        case "ArrowRight":
+          setDirection([1, 0]);
+          break;
+        default:
+          setDirection([0, 0]);
+          break;
+      }
     }
   });
 
-  const resetDirection = () => setTimeout(() => setDirection([0, 0]), 1000);
+  const resetDirection = () => setDirection([0, 0]);
 
-  return direction;
+  return [direction, resetDirection];
 }
