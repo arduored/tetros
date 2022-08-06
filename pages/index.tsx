@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import { useEffect, useRef, useState } from "react";
 import Grid from "../components/Grid";
 import Button from "../components/shared/Button";
-import { useKeyboard } from "../hooks/useKeyboard";
 import { Tetromino } from "../types";
 
 const GRID_W = 12;
@@ -27,7 +26,6 @@ const Home: NextPage = () => {
   const [playingTime, setPlayingTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [item, setItem] = useState<Tetromino | undefined>();
-  const [direction, resetDirection] = useKeyboard(pageRef);
 
   pageRef.current?.addEventListener("GRID_BOTTOM", (e) => {
     e.preventDefault();
@@ -39,18 +37,35 @@ const Home: NextPage = () => {
     console.log("GRID_SIDE");
   });
 
+  pageRef.current?.addEventListener("keyup", (e) => {
+    e.preventDefault();
+    setTimeout(() => {
+      switch (e.key) {
+        case "q":
+        case "ArrowLeft":
+          slide(-1);
+          break;
+        case "d":
+        case "ArrowRight":
+          slide(1);
+          break;
+        case " ":
+          rotate();
+          break;
+      }
+    }, 100);
+  });
+
   useEffect(() => {
     let ticker: NodeJS.Timer | null = null;
     if (item && isPlaying) {
       ticker = setInterval(() => {
-        updateItem(direction);
-        // resetDirection();
         setPlayingTime(playingTime + 1);
+        fall();
       }, 1000);
     }
 
     return () => {
-      resetDirection();
       if (ticker) {
         clearInterval(ticker);
       }
@@ -65,23 +80,29 @@ const Home: NextPage = () => {
     setIsPlaying(true);
   };
 
-  const updateItem = (dir: number[]) => {
-    const [pX, pY] = dir;
+  const slide = (dir: number) => {
     const newItem = item?.map(([x, y]) => {
-      let newX = x;
-      let newY = y;
-      const tmpX = x + pX;
-      const tmpY = y + 1 + pY;
-
-      if (tmpX >= 0 && tmpX < GRID_W) {
-        newX = tmpX;
+      if (x + dir >= 0 && x + dir < GRID_W) {
+        return [x + dir, y];
       }
+      return [x, y];
+    });
+    setItem(newItem);
+  };
 
+  const rotate = () => {};
+
+  const fall = () => {
+    const newItem = item?.map(([x, y]) => {
+      let newY = y;
+      const tmpY = y + 1;
+
+      // Check if the next cell is already taken
       if (tmpY < GRID_H) {
         newY = tmpY;
       }
 
-      return [newX, newY];
+      return [x, newY];
     });
     setItem(newItem);
   };

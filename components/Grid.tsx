@@ -41,7 +41,7 @@ function Grid({ width, height, tetromino }: IGrid) {
   }, [tetromino]);
 
   return (
-    <div className="grid grid-cols-12 border border-orange-700" ref={gridRef}>
+    <div className="grid grid-cols-12 border-4 border-slate-900" ref={gridRef}>
       {grid.map((col) => col.map((cell) => cell))}
     </div>
   );
