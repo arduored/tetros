@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Grid from "../components/Grid";
 import Button from "../components/shared/Button";
 import { Tetromino } from "../types";
@@ -23,9 +23,11 @@ const leftL: Tetromino = [
 
 const Home: NextPage = () => {
   const pageRef = useRef<HTMLDivElement | null>(null);
-  const [playingTime, setPlayingTime] = useState(0);
+  const [interval, setIntervalDuration] = useState(1000);
   const [isPlaying, setIsPlaying] = useState(false);
   const [item, setItem] = useState<Tetromino | undefined>();
+  const [isPending, startTransition] = useTransition();
+  const [canMoveSideway, setCanMoveSideway] = useState(true);
 
   pageRef.current?.addEventListener("GRID_BOTTOM", (e) => {
     e.preventDefault();
@@ -34,6 +36,7 @@ const Home: NextPage = () => {
 
   pageRef.current?.addEventListener("GRID_SIDE", (e) => {
     e.preventDefault();
+    setCanMoveSideway(false);
     console.log("GRID_SIDE");
   });
 
@@ -41,13 +44,17 @@ const Home: NextPage = () => {
     e.preventDefault();
     setTimeout(() => {
       switch (e.key) {
-        case "q":
+        case "a":
         case "ArrowLeft":
-          slide(-1);
+          if (canMoveSideway) {
+            slide(-1);
+          }
           break;
         case "d":
         case "ArrowRight":
-          slide(1);
+          if (canMoveSideway) {
+            slide(1);
+          }
           break;
         case " ":
           rotate();
@@ -57,28 +64,17 @@ const Home: NextPage = () => {
   });
 
   useEffect(() => {
-    let ticker: NodeJS.Timer | null = null;
-    if (item && isPlaying) {
-      ticker = setInterval(() => {
-        setPlayingTime((prev) => prev++);
+    console.count("effect triggered");
+    const ticker = setInterval(() => {
+      if (isPlaying && item) {
         fall();
-      }, 1000);
-    }
+      }
+    }, interval);
 
     return () => {
-      if (ticker) {
-        clearInterval(ticker);
-      }
+      clearInterval(ticker);
     };
-  }, [item, isPlaying, playingTime]);
-
-  const startGame = () => {
-    console.log("Started");
-    if (!item) {
-      setItem(leftL);
-    }
-    setIsPlaying(true);
-  };
+  }, [interval, isPlaying, item]);
 
   const slide = (dir: number) => {
     const newItem = item?.map(([x, y]) => {
@@ -87,7 +83,7 @@ const Home: NextPage = () => {
       }
       return [x, y];
     });
-    setItem(newItem);
+    startTransition(() => setItem(newItem));
   };
 
   const rotate = () => {
@@ -102,7 +98,8 @@ const Home: NextPage = () => {
         const newY = (x - offsetX) * -1;
         return [newX + offsetX, newY + offsetY];
       });
-      setItem(rotatedItem);
+
+      startTransition(() => setItem(rotatedItem));
     }
   };
 
@@ -118,24 +115,31 @@ const Home: NextPage = () => {
 
       return [x, newY];
     });
-    setItem(newItem);
+    startTransition(() => setItem(newItem));
   };
 
-  const stopGame = () => {
-    console.log("Stopped");
-    setItem(undefined);
+  const start = () => {
+    if (!item) {
+      setItem(leftL);
+    }
+    setIsPlaying(true);
+  };
+
+  const stop = () => {
     setIsPlaying(false);
-    setPlayingTime(0);
+  };
+
+  const reset = () => {
+    stop();
+    setItem(undefined);
   };
 
   return (
     <div className="flex flex-col justify-center w-full py-5" ref={pageRef}>
       <div className=" flex justify-center mb-5 h-fit">
-        <Button onClick={startGame} text="play" />
-        <Button onClick={stopGame} text="stop" />
-        <div className="flex items-center border border-slate-500-500 my-2 rounded-sm text-slate-500">
-          <p className="px-2">Time played: {playingTime}sec</p>
-        </div>
+        <Button onClick={start} text="play" />
+        <Button onClick={stop} text="stop" />
+        <Button onClick={reset} text="reset" />
       </div>
       <div className="flex justify-center">
         <Grid width={GRID_W} height={GRID_H} tetromino={item} />
