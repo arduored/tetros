@@ -23,21 +23,28 @@ const leftL: Tetromino = [
 
 const Home: NextPage = () => {
   const pageRef = useRef<HTMLDivElement | null>(null);
+
   const [interval, setIntervalDuration] = useState(1000);
   const [isPlaying, setIsPlaying] = useState(false);
+
   const [item, setItem] = useState<Tetromino | undefined>();
+
   const [isPending, startTransition] = useTransition();
-  const [canMoveSideway, setCanMoveSideway] = useState(true);
+  const [canSlide, setCanSlide] = useState({ left: true, right: true });
 
   pageRef.current?.addEventListener("GRID_BOTTOM", (e) => {
     e.preventDefault();
     setItem(undefined);
   });
 
-  pageRef.current?.addEventListener("GRID_SIDE", (e) => {
+  pageRef.current?.addEventListener("GRID_LEFT", (e) => {
     e.preventDefault();
-    setCanMoveSideway(false);
-    console.log("GRID_SIDE");
+    setCanSlide((prev) => ({ ...prev, left: false }));
+  });
+
+  pageRef.current?.addEventListener("GRID_RIGHT", (e) => {
+    e.preventDefault();
+    setCanSlide((prev) => ({ ...prev, right: false }));
   });
 
   pageRef.current?.addEventListener("keyup", (e) => {
@@ -46,13 +53,13 @@ const Home: NextPage = () => {
       switch (e.key) {
         case "a":
         case "ArrowLeft":
-          if (canMoveSideway) {
+          if (canSlide.left) {
             slide(-1);
           }
           break;
         case "d":
         case "ArrowRight":
-          if (canMoveSideway) {
+          if (canSlide.right) {
             slide(1);
           }
           break;
