@@ -1,5 +1,12 @@
 import type { NextPage } from "next";
-import { useEffect, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import Grid from "../components/Grid";
 import Button from "../components/shared/Button";
 import { Tetromino } from "../types";
@@ -49,29 +56,26 @@ const Home: NextPage = () => {
 
   pageRef.current?.addEventListener("keyup", (e) => {
     e.preventDefault();
-    setTimeout(() => {
-      switch (e.key) {
-        case "a":
-        case "ArrowLeft":
-          if (canSlide.left) {
-            slide(-1);
-          }
-          break;
-        case "d":
-        case "ArrowRight":
-          if (canSlide.right) {
-            slide(1);
-          }
-          break;
-        case " ":
-          rotate();
-          break;
-      }
-    }, 100);
+    switch (e.key) {
+      case "a":
+      case "ArrowLeft":
+        if (canSlide.left) {
+          slide(-1);
+        }
+        break;
+      case "d":
+      case "ArrowRight":
+        if (canSlide.right) {
+          slide(1);
+        }
+        break;
+      case " ":
+        rotate();
+        break;
+    }
   });
 
   useEffect(() => {
-    console.count("effect triggered");
     const ticker = setInterval(() => {
       if (isPlaying && item) {
         fall();
@@ -83,17 +87,30 @@ const Home: NextPage = () => {
     };
   }, [interval, isPlaying, item]);
 
-  const slide = (dir: number) => {
-    const newItem = item?.map(([x, y]) => {
-      if (x + dir >= 0 && x + dir < GRID_W) {
-        return [x + dir, y];
-      }
-      return [x, y];
-    });
-    startTransition(() => setItem(newItem));
-  };
+  const slide = useCallback(
+    (dir: number) => {
+      let isOnGridSide = { ...canSlide };
+      const newItem = item?.map(([x, y]) => {
+        if (x + dir >= 0 && x + dir < GRID_W) {
+          isOnGridSide = {
+            left: x + dir === 0,
+            right: x + dir === GRID_W - 1,
+          };
+          return [x + dir, y];
+        }
+        return [x, y];
+      });
 
-  const rotate = () => {
+      if ((!isOnGridSide.left || !isOnGridSide.right) && !canSlide) {
+        setCanSlide((prev) => ({ ...prev, ...isOnGridSide }));
+      }
+
+      startTransition(() => setItem(newItem));
+    },
+    [item]
+  );
+
+  const rotate = useCallback(() => {
     if (item) {
       const sortedByX = [...item].sort((a, b) => b[0] - a[0]);
       const sortedByY = [...item].sort((a, b) => b[1] - a[1]);
@@ -108,14 +125,13 @@ const Home: NextPage = () => {
 
       startTransition(() => setItem(rotatedItem));
     }
-  };
+  }, [item]);
 
-  const fall = () => {
+  const fall = useCallback(() => {
     const newItem = item?.map(([x, y]) => {
       let newY = y;
       const tmpY = y + 1;
 
-      // Check if the next cell is already taken
       if (tmpY < GRID_H) {
         newY = tmpY;
       }
@@ -123,29 +139,34 @@ const Home: NextPage = () => {
       return [x, newY];
     });
     startTransition(() => setItem(newItem));
-  };
+  }, [item]);
 
-  const start = () => {
+  const start = useCallback(() => {
     if (!item) {
       setItem(leftL);
     }
     setIsPlaying(true);
-  };
+  }, [item]);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     setIsPlaying(false);
-  };
+  }, []);
 
-  const reset = () => {
+  const resume = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
+
+  const reset = useCallback(() => {
     stop();
     setItem(undefined);
-  };
+  }, []);
 
   return (
     <div className="flex flex-col justify-center w-full py-5" ref={pageRef}>
       <div className=" flex justify-center mb-5 h-fit">
         <Button onClick={start} text="play" />
         <Button onClick={stop} text="stop" />
+        <Button onClick={resume} text="resume" />
         <Button onClick={reset} text="reset" />
       </div>
       <div className="flex justify-center">

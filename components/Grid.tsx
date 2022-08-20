@@ -25,15 +25,15 @@ const Grid: FC<IGrid> = ({ width, height, tetromino }) => {
       const newGrid = [...createEmptyGrid(width, height)];
 
       for (const [x, y] of tetromino) {
-        if (willTouchBottom(y)) {
+        if (willHitBottom(y)) {
           eventToDispatch = GRID_BOTTOM;
         }
 
-        if (willTouchLeft(x)) {
+        if (willHitLeft(x)) {
           eventToDispatch = GRID_LEFT;
         }
 
-        if (willTouchRight(x)) {
+        if (willHitRight(x)) {
           eventToDispatch = GRID_RIGHT;
         }
 
@@ -53,15 +53,15 @@ const Grid: FC<IGrid> = ({ width, height, tetromino }) => {
     return resetGrid;
   }, [tetromino]);
 
-  function willTouchBottom(y: number) {
+  function willHitBottom(y: number) {
     return y === height - 1;
   }
 
-  function willTouchLeft(x: number) {
+  function willHitLeft(x: number) {
     return x - 1 === 0;
   }
 
-  function willTouchRight(x: number) {
+  function willHitRight(x: number) {
     return x + 1 === width - 1;
   }
 
