@@ -60,7 +60,7 @@ const Home: NextPage = () => {
     let ticker: NodeJS.Timer | null = null;
     if (item && isPlaying) {
       ticker = setInterval(() => {
-        setPlayingTime(playingTime + 1);
+        setPlayingTime((prev) => prev++);
         fall();
       }, 1000);
     }
@@ -90,7 +90,21 @@ const Home: NextPage = () => {
     setItem(newItem);
   };
 
-  const rotate = () => {};
+  const rotate = () => {
+    if (item) {
+      const sortedByX = [...item].sort((a, b) => b[0] - a[0]);
+      const sortedByY = [...item].sort((a, b) => b[1] - a[1]);
+      const offsetX = sortedByX[0][0];
+      const offsetY = sortedByY[0][1];
+
+      const rotatedItem = item?.map(([x, y]) => {
+        const newX = y - offsetY;
+        const newY = (x - offsetX) * -1;
+        return [newX + offsetX, newY + offsetY];
+      });
+      setItem(rotatedItem);
+    }
+  };
 
   const fall = () => {
     const newItem = item?.map(([x, y]) => {
@@ -116,10 +130,12 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex flex-col justify-center w-full py-5" ref={pageRef}>
-      <div className=" flex justify-center mb-5">
+      <div className=" flex justify-center mb-5 h-fit">
         <Button onClick={startGame} text="play" />
         <Button onClick={stopGame} text="stop" />
-        <p>Time played: {playingTime}sec</p>
+        <div className="flex items-center border border-slate-500-500 my-2 rounded-sm text-slate-500">
+          <p className="px-2">Time played: {playingTime}sec</p>
+        </div>
       </div>
       <div className="flex justify-center">
         <Grid width={GRID_W} height={GRID_H} tetromino={item} />
