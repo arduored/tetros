@@ -1,12 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { GRID_BOTTOM, GRID_LEFT, GRID_RIGHT } from "../events/gridEvents";
-import { Grid, Tetromino } from "../types";
+import { Coordinates, Grid } from "../types";
 import Cell from "./Cell";
 
 interface IGrid {
   width: number;
   height: number;
-  tetromino?: Tetromino;
+  itemCoordinates?: Coordinates[];
 }
 
 function createEmptyGrid(w: number, h: number): Grid {
@@ -14,17 +14,17 @@ function createEmptyGrid(w: number, h: number): Grid {
   return layout.map((col, i) => col.map((_, j) => <Cell key={`${i}-${j}`} />));
 }
 
-const Grid: FC<IGrid> = ({ width, height, tetromino }) => {
+const Grid: FC<IGrid> = ({ width, height, itemCoordinates }) => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [grid, updateGrid] = useState(createEmptyGrid(width, height));
 
   let eventToDispatch: Event | undefined = undefined;
 
   useEffect(() => {
-    if (tetromino) {
+    if (itemCoordinates) {
       const newGrid = [...createEmptyGrid(width, height)];
 
-      for (const [x, y] of tetromino) {
+      for (const [x, y] of itemCoordinates) {
         if (willHitBottom(y)) {
           eventToDispatch = GRID_BOTTOM;
         }
@@ -51,7 +51,7 @@ const Grid: FC<IGrid> = ({ width, height, tetromino }) => {
     }
 
     return resetGrid;
-  }, [tetromino]);
+  }, [itemCoordinates]);
 
   function willHitBottom(y: number) {
     return y === height - 1;
