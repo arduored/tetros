@@ -104,6 +104,7 @@ const Home: NextPage = () => {
   const reset = useCallback(() => {
     pause();
     setItem(undefined);
+    pageRef.current = null;
   }, []);
 
   return (
@@ -129,7 +130,9 @@ export default Home;
 
 export function debounce(func: any, timeout = 1000) {
   let timer: NodeJS.Timeout;
+
   console.count("INSIDE DEBOUNCE");
+
   return (...args: any) => {
     clearTimeout(timer);
     timer = setTimeout(func.apply(args), timeout);

@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { GRID_BOTTOM, GRID_LEFT, GRID_RIGHT } from "../events/gridEvents";
-import { Coordinates, Grid } from "../types";
+import { Coordinates, TGrid } from "../types";
 import Cell from "./Cell";
 
 interface IGrid {
@@ -9,7 +9,7 @@ interface IGrid {
   itemCoordinates?: Coordinates[];
 }
 
-function createEmptyGrid(w: number, h: number): Grid {
+function createEmptyGrid(w: number, h: number): TGrid {
   const layout: unknown[][] = Array(h).fill(Array(w).fill(undefined));
   return layout.map((col, i) => col.map((_, j) => <Cell key={`${i}-${j}`} />));
 }
@@ -26,15 +26,15 @@ const Grid: FC<IGrid> = ({ width, height, itemCoordinates }) => {
 
       for (const [x, y] of itemCoordinates) {
         if (willHitBottom(y)) {
-          eventToDispatch = GRID_BOTTOM;
+          eventToDispatch = new Event("GRID_BOTTOM", { bubbles: true, cancelable: true });
         }
 
         if (willHitLeft(x)) {
-          eventToDispatch = GRID_LEFT;
+          eventToDispatch = new Event("GRID_LEFT", { bubbles: true, cancelable: true });
         }
 
         if (willHitRight(x)) {
-          eventToDispatch = GRID_RIGHT;
+          eventToDispatch = new Event("GRID_RIGHT", { bubbles: true, cancelable: true });
         }
 
         if (isInGrid(x, y)) {
