@@ -16,24 +16,7 @@ const Home: NextPage = () => {
   const [item, setItem] = useState<Tetromino | undefined>();
   const [_, startTransition] = useTransition();
 
-  pageRef.current?.addEventListener("GRID_BOTTOM", (e) => {
-    e.preventDefault();
-    // call a new Tetromino
-    pause();
-  });
-
-  pageRef.current?.addEventListener("GRID_LEFT", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    debounce(item?.setCanSlide({ left: false }));
-  });
-
-  pageRef.current?.addEventListener("GRID_RIGHT", (e) => {
-    e.preventDefault();
-    debounce(item?.setCanSlide({ right: false }));
-  });
-
-  pageRef.current?.addEventListener("keyup", (e) => {
+  const keyupListener = (e: KeyboardEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -60,7 +43,36 @@ const Home: NextPage = () => {
           break;
       }
     }
-  });
+  };
+
+  const gridBottomListener = (e: Event) => {
+    e.preventDefault();
+    // call a new Tetromino
+    pause();
+  };
+  const gridLeftListener = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    debounce(item?.setCanSlide({ left: false }));
+  };
+  const gridRightListener = (e: Event) => {
+    e.preventDefault();
+    debounce(item?.setCanSlide({ right: false }));
+  };
+
+  useEffect(() => {
+    pageRef.current?.addEventListener("GRID_BOTTOM", gridBottomListener);
+    pageRef.current?.addEventListener("GRID_LEFT", gridLeftListener);
+    pageRef.current?.addEventListener("GRID_RIGHT", gridRightListener);
+    pageRef.current?.addEventListener("keyup", keyupListener);
+
+    return () => {
+      pageRef.current?.removeEventListener("GRID_BOTTOM", gridBottomListener);
+      pageRef.current?.removeEventListener("GRID_LEFT", gridLeftListener);
+      pageRef.current?.removeEventListener("GRID_RIGHT", gridRightListener);
+      pageRef.current?.removeEventListener("keyup", keyupListener);
+    };
+  }, [keyupListener, gridBottomListener, gridLeftListener, gridRightListener]);
 
   useEffect(() => {
     const ticker = setInterval(() => {
