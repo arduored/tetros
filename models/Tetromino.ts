@@ -21,18 +21,6 @@ export class Tetromino {
     this.coordinates = coordinates;
   }
 
-  canSlideLeft() {
-    return this.canSlide.left;
-  }
-
-  canSlideRight() {
-    // check position of the item relative to the grid
-    // move if allowed
-    // updated canSlide state
-    // return new state
-
-    return this.canSlide.right;
-  }
 
   setCanSlide(update: Omit<Slidable, "left" | "right">) {
     this.canSlide = { ...this.canSlide, ...update };
@@ -73,6 +61,8 @@ export class Tetromino {
       x + dir >= 0 && x + dir < limit -1
     ) 
 
+    console.log({canSlide})
+
     if(!canSlide) return;
 
     const newCoordinates = this.coordinates.map(([x, y]): Coordinates => {
@@ -86,7 +76,7 @@ export class Tetromino {
       this.canSlide = isOnGridSide;
 
       this.coordinates = newCoordinates;
-    }
+  }
 }
 
 export const bar = new Tetromino([

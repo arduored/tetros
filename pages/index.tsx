@@ -5,7 +5,7 @@ import Button from "../components/shared/Button";
 import { LeftL, Tetromino } from "../models/Tetromino";
 
 const GRID_W = 12;
-const GRID_H = 20;
+const GRID_H = 10;
 
 const Home: NextPage = () => {
   const pageRef = useRef<HTMLDivElement | null>(null);
@@ -24,23 +24,17 @@ const Home: NextPage = () => {
       switch (e.key) {
         case "a":
         case "ArrowLeft":
-          if (item.canSlideLeft()) {
-            console.count("LEFT");
-
-            debounce(item.slide(-1, GRID_W));
-          }
+          item.slide(-1, GRID_W);
           break;
         case "d":
         case "ArrowRight":
-          if (item.canSlideRight()) {
-            console.count("RIGHT");
-
-            debounce(item.slide(1, GRID_W));
-          }
+          item.slide(1, GRID_W);
           break;
         case " ":
           item.rotate();
           break;
+        default: 
+        console.error(`event not handled: ${e.key}`)
       }
     }
   };
@@ -53,11 +47,11 @@ const Home: NextPage = () => {
   const gridLeftListener = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
-    debounce(item?.setCanSlide({ left: false }));
+    item?.setCanSlide({ left: false });
   };
   const gridRightListener = (e: Event) => {
     e.preventDefault();
-    debounce(item?.setCanSlide({ right: false }));
+    item?.setCanSlide({ right: false });
   };
 
   useEffect(() => {
@@ -72,7 +66,7 @@ const Home: NextPage = () => {
       pageRef.current?.removeEventListener("GRID_RIGHT", gridRightListener);
       pageRef.current?.removeEventListener("keyup", keyupListener);
     };
-  }, [keyupListener, gridBottomListener, gridLeftListener, gridRightListener]);
+  }, [item]);
 
   useEffect(() => {
     const ticker = setInterval(() => {
@@ -90,6 +84,7 @@ const Home: NextPage = () => {
     if (!item) {
       setItem(LeftL);
     }
+
     setIsPlaying(true);
   }, [item]);
 
