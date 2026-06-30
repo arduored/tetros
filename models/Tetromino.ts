@@ -27,16 +27,8 @@ export class Tetromino {
   }
 
   fall(limit: number) {
-    const newCoordinates = this.coordinates?.map(([x, y]): Coordinates => {
-      let newY = y;
-      const tmpY = y + 1;
-
-      if (tmpY < limit) {
-        newY = tmpY;
-      }
-
-      return [x, newY];
-    });
+    const newCoordinates = this.coordinates?.map(([x, y]): Coordinates =>  [x, (y +  1) < limit ? y+1 : y]
+    );
     this.coordinates = newCoordinates;
   }
 

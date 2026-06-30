@@ -20,36 +20,41 @@ const Grid: FC<IGrid> = ({ width, height, itemCoordinates }) => {
   let eventToDispatch: Event | undefined = undefined;
 
   useEffect(() => {
-    if (itemCoordinates) {
-      const newGrid = [...createEmptyGrid(width, height)];
 
-      for (const [x, y] of itemCoordinates) {
-        if (willHitBottom(y)) {
-          eventToDispatch = new Event("GRID_BOTTOM", { bubbles: true, cancelable: true });
-        }
-
-        if (willHitLeft(x)) {
-          eventToDispatch = new Event("GRID_LEFT", { bubbles: true, cancelable: true });
-        }
-
-        if (willHitRight(x)) {
-          eventToDispatch = new Event("GRID_RIGHT", { bubbles: true, cancelable: true });
-        }
-
-        if (isInGrid(x, y)) {
-          // mandatory to avoid out of bounds access in newGrid
-          newGrid[y][x] = prepareGrid(x, y);
-        }
-      }
-
-      if (eventToDispatch) {
-        gridRef.current?.dispatchEvent(eventToDispatch);
-      }
-
-      updateGrid(newGrid);
+    if (!itemCoordinates) {
+      resetGrid();
+      return;
     }
 
-    return resetGrid;
+    const newGrid = [...createEmptyGrid(width, height)];
+
+    for (const [x, y] of itemCoordinates) {
+      if (willHitBottom(y)) {
+        eventToDispatch = new Event("GRID_BOTTOM", { bubbles: true, cancelable: true });
+      }
+
+      if (willHitLeft(x)) {
+        eventToDispatch = new Event("GRID_LEFT", { bubbles: true, cancelable: true });
+      }
+
+      if (willHitRight(x)) {
+        eventToDispatch = new Event("GRID_RIGHT", { bubbles: true, cancelable: true });
+      }
+
+      if (isInGrid(x, y)) {
+        // mandatory to avoid out of bounds access in newGrid
+        newGrid[y][x] = prepareGrid(x, y);
+      }
+    }
+
+    if (eventToDispatch) {
+      gridRef.current?.dispatchEvent(eventToDispatch);
+    }
+
+    updateGrid(newGrid);
+    
+    
+
   }, [itemCoordinates]);
 
   function willHitBottom(y: number) {
@@ -74,7 +79,6 @@ const Grid: FC<IGrid> = ({ width, height, itemCoordinates }) => {
   }
 
   function resetGrid() {
-    console.log("RESETTING GRID")
     updateGrid(createEmptyGrid(width, height));
   }
 
