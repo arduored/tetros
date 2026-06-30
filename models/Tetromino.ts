@@ -61,8 +61,6 @@ export class Tetromino {
       x + dir >= 0 && x + dir < limit -1
     ) 
 
-    console.log({canSlide})
-
     if(!canSlide) return;
 
     const newCoordinates = this.coordinates.map(([x, y]): Coordinates => {
@@ -79,49 +77,49 @@ export class Tetromino {
   }
 }
 
-export const bar = new Tetromino([
+export const bar = () => new Tetromino([
   [3, -1],
   [4, -1],
   [5, -1],
   [6, -1],
 ]);
 
-export const Square = new Tetromino([
+export const Square = () => new Tetromino([
   [5, -2],
   [6, -2],
   [5, -1],
   [6, -1],
 ]);
 
-export const LeftL = new Tetromino([
+export const LeftL = () => new Tetromino([
   [6, -3],
   [6, -2],
   [6, -1],
   [5, -1],
 ]);
 
-export const RightL = new Tetromino([
+export const RightL = () => new Tetromino([
   [5, -3],
   [5, -2],
   [5, -1],
   [6, -1],
 ]);
 
-export const LeftZ = new Tetromino([
+export const LeftZ = () => new Tetromino([
   [4, -1],
   [5, -1],
   [5, -2],
   [6, -2],
 ]);
 
-export const RightZ = new Tetromino([
+export const RightZ = () => new Tetromino([
   [4, -2],
   [5, -2],
   [5, -1],
   [6, -1],
 ]);
 
-export const TShape = new Tetromino([
+export const TShape = () => new Tetromino([
   [4, -1],
   [5, -1],
   [5, -2],

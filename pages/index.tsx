@@ -14,7 +14,7 @@ const Home: NextPage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [item, setItem] = useState<Tetromino | undefined>();
-  const [_, startTransition] = useTransition();
+  const [isWaitingForTransition, startTransition] = useTransition();
 
   const keyupListener = (e: KeyboardEvent) => {
     e.preventDefault();
@@ -69,6 +69,7 @@ const Home: NextPage = () => {
   }, [item]);
 
   useEffect(() => {
+    console.log({isWaitingForTransition})
     const ticker = setInterval(() => {
       if (isPlaying && item) {
         startTransition(() => item.fall(GRID_H));
@@ -79,6 +80,7 @@ const Home: NextPage = () => {
       clearInterval(ticker);
     };
   }, [interval, isPlaying, item]);
+
 
   const start = useCallback(() => {
     if (!item) {
@@ -99,7 +101,6 @@ const Home: NextPage = () => {
   const reset = useCallback(() => {
     pause();
     setItem(undefined);
-    pageRef.current = null;
   }, []);
 
   return (
@@ -122,14 +123,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-export function debounce(func: any, timeout = 1000) {
-  let timer: NodeJS.Timeout;
-
-  console.count("INSIDE DEBOUNCE");
-
-  return (...args: any) => {
-    clearTimeout(timer);
-    timer = setTimeout(func.apply(args), timeout);
-  };
-}

@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { GRID_BOTTOM, GRID_LEFT, GRID_RIGHT } from "../events/gridEvents";
 import { Coordinates, TGrid } from "../types";
 import Cell from "./Cell";
 
@@ -75,6 +74,7 @@ const Grid: FC<IGrid> = ({ width, height, itemCoordinates }) => {
   }
 
   function resetGrid() {
+    console.log("RESETTING GRID")
     updateGrid(createEmptyGrid(width, height));
   }
 
